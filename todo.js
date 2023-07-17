@@ -1,27 +1,36 @@
 "use strict";
 
 let gorevListesi = [
-  { "id": 1, "gorevAdi": "Görev 1" },
-  { "id": 2, "gorevAdi": "Görev 2" },
-  { "id": 3, "gorevAdi": "Görev 3" },
-  { "id": 4, "gorevAdi": "Görev 4" },
+  { "id": 1, "gorevAdi": "Görev 1", "durum": "completed" },
+  { "id": 2, "gorevAdi": "Görev 2", "durum": "pending" },
+  { "id": 3, "gorevAdi": "Görev 3", "durum": "completed" },
+  { "id": 4, "gorevAdi": "Görev 4", "durum": "pending" },
 ]; // value için quotes olmaz
 
 let editId;
 let isEditTask = false;
-let taskInput = document.querySelector("#txtTaskName");
-displayTask();
+const taskInput = document.querySelector("#txtTaskName");
+const btnClear = document.querySelector("#btnClear");
+const filters = document.querySelectorAll(".filters span");
 
-function displayTask() {
+displayTask("all");
+
+function displayTask(filter) {
   let ul = document.getElementById("task-list");
   ul.innerHTML = ""; //
 
-  for (let gorev of gorevListesi) {
-    let li = `
+  if (gorevListesi.length == 0) {
+    ul.innerHTML = "<p class='p-3 m-0'>Görev listeniz boş.</p>";
+  } else {
+    for (let gorev of gorevListesi) {
+      let completed = gorev.durum == "completed" ? "checked" : "";
+
+      if (filter == gorev.durum || filter == "all") {
+        let li = `
     <li class="task list-group-item">
       <div class="form-check">
-       <input type="checkbox" id="${gorev.id}" class="form-check-input" />
-       <label for="${gorev.id}" class="form-check-label">${gorev.gorevAdi}</label>
+       <input type="checkbox" onclick="updateStatus(this)" id="${gorev.id}" class="form-check-input" ${completed} />
+       <label for="${gorev.id}" class="form-check-label ${completed}">${gorev.gorevAdi}</label>
       </div>
       <div class="dropdown">
             <button class="btn btn-link dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -35,8 +44,9 @@ function displayTask() {
        </div>
      </li>
          `;
-
-    ul.insertAdjacentHTML("beforeend", li); // google da sıralamarı var lazımsa ordan bak. bu şekilde yerleştirebiliriz.
+        ul.insertAdjacentHTML("beforeend", li); // google da sıralamarı var lazımsa ordan bak. bu şekilde yerleştirebiliriz.
+      }
+    }
   }
 }
 /*
@@ -66,6 +76,14 @@ document
     }
   }); //keyboard event w3school
 
+for (let span of filters) {
+  span.addEventListener("click", function () {
+    document.querySelector("span.active").classList.remove("active");
+    span.classList.add("active");
+    displayTask(span.id);
+  });
+}
+
 function NewTask(event) {
   // event.target.classList.add("btn-success");
 
@@ -77,6 +95,7 @@ function NewTask(event) {
       gorevListesi.push({
         "id": gorevListesi.length + 1,
         "gorevAdi": taskInput.value,
+        "durum": "pending",
       });
     } else {
       //güncelleme
@@ -89,7 +108,7 @@ function NewTask(event) {
     }
 
     taskInput.value = "";
-    displayTask();
+    displayTask(document.querySelector("span.active").id);
   }
 
   event.preventDefault();
@@ -138,7 +157,7 @@ return gorev.id == id;
   deletedId = gorevListesi.findIndex((gorev) => gorev.id == id);
 
   gorevListesi.splice(deletedId, 1);
-  displayTask();
+  displayTask(document.querySelector("span.active").id);
 }
 
 function editTask(taskId, taskName) {
@@ -150,4 +169,29 @@ function editTask(taskId, taskName) {
 
   console.log("edit id:", editId);
   console.log("edit mode:", isEditTask);
+}
+
+btnClear.addEventListener("click", function () {
+  gorevListesi.splice(0, gorevListesi.length);
+  displayTask();
+});
+
+function updateStatus(selectedTask) {
+  // console.log(selectedTask.parentElement.lastElementChild);
+  let label = selectedTask.nextElementSibling;
+  let durum;
+
+  if (selectedTask.checked) {
+    label.classList.add("checked");
+    durum = "completed";
+  } else {
+    label.classList.remove("checked");
+    durum = "pending";
+  }
+
+  for (let gorev of gorevListesi) {
+    if (gorev.id == selectedTask.id) {
+      gorev.durum = durum;
+    }
+  }
 }
