@@ -1,11 +1,10 @@
 "use strict";
 
-let gorevListesi = [
-  { "id": 1, "gorevAdi": "Görev 1", "durum": "completed" },
-  { "id": 2, "gorevAdi": "Görev 2", "durum": "pending" },
-  { "id": 3, "gorevAdi": "Görev 3", "durum": "completed" },
-  { "id": 4, "gorevAdi": "Görev 4", "durum": "pending" },
-]; // value için quotes olmaz
+let gorevListesi = []; // value için quotes olmaz
+
+if (localStorage.getItem("gorevListesi") !== null) {
+  gorevListesi = JSON.parse(localStorage.getItem("gorevListesi"));
+}
 
 let editId;
 let isEditTask = false;
@@ -109,6 +108,7 @@ function NewTask(event) {
 
     taskInput.value = "";
     displayTask(document.querySelector("span.active").id);
+    localStorage.setItem("gorevListesi", JSON.stringify(gorevListesi));
   }
 
   event.preventDefault();
@@ -158,6 +158,7 @@ return gorev.id == id;
 
   gorevListesi.splice(deletedId, 1);
   displayTask(document.querySelector("span.active").id);
+  localStorage.setItem("gorevListesi", JSON.stringify(gorevListesi));
 }
 
 function editTask(taskId, taskName) {
@@ -173,6 +174,7 @@ function editTask(taskId, taskName) {
 
 btnClear.addEventListener("click", function () {
   gorevListesi.splice(0, gorevListesi.length);
+  localStorage.setItem("gorevListesi", JSON.stringify(gorevListesi));
   displayTask();
 });
 
@@ -194,4 +196,6 @@ function updateStatus(selectedTask) {
       gorev.durum = durum;
     }
   }
+  displayTask(document.querySelector("span.active").id);
+  localStorage.setItem("gorevListesi", JSON.stringify(gorevListesi));
 }
