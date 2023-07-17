@@ -7,6 +7,9 @@ let gorevListesi = [
   { "id": 4, "gorevAdi": "Görev 4" },
 ]; // value için quotes olmaz
 
+let editId;
+let isEditTask = false;
+let taskInput = document.querySelector("#txtTaskName");
 displayTask();
 
 function displayTask() {
@@ -26,7 +29,7 @@ function displayTask() {
             </button>
             <ul class="dropdown-menu">
               <li><a onclick="deleteTask(${gorev.id})" class="dropdown-item" href="#"><i class="fa-solid fa-trash-can"></i> Sil</a></li>
-              <li><a class="dropdown-item" href="#"><i class="fa-sharp fa-solid fa-pen-to-square"></i> Düzenle</a></li>
+              <li><a onclick='editTask(${gorev.id},"${gorev.gorevAdi}")' class="dropdown-item" href="#"><i class="fa-sharp fa-solid fa-pen-to-square"></i> Düzenle</a></li>
               
             </ul>
        </div>
@@ -65,15 +68,26 @@ document
 
 function NewTask(event) {
   // event.target.classList.add("btn-success");
-  let taskInput = document.querySelector("#txtTaskName");
 
   if (taskInput.value == "") {
     alert("Görev girmediniz!");
   } else {
-    gorevListesi.push({
-      "id": gorevListesi.length + 1,
-      "gorevAdi": taskInput.value,
-    });
+    if (!isEditTask) {
+      //ekleme
+      gorevListesi.push({
+        "id": gorevListesi.length + 1,
+        "gorevAdi": taskInput.value,
+      });
+    } else {
+      //güncelleme
+      for (let gorev of gorevListesi) {
+        if (gorev.id == editId) {
+          gorev.gorevAdi = taskInput.value;
+        }
+        isEditTask = false;
+      }
+    }
+
     taskInput.value = "";
     displayTask();
   }
@@ -125,4 +139,15 @@ return gorev.id == id;
 
   gorevListesi.splice(deletedId, 1);
   displayTask();
+}
+
+function editTask(taskId, taskName) {
+  editId = taskId;
+  isEditTask = true;
+  taskInput.value = taskName;
+  taskInput.focus();
+  taskInput.classList.add("active");
+
+  console.log("edit id:", editId);
+  console.log("edit mode:", isEditTask);
 }
